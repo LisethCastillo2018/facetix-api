@@ -58,17 +58,9 @@ python3 -m venv venv
 .\venv\Scripts\Activate
 ```
 
-Verificar librerias
-
-    pip freeze
-
-Migrar librerías a un archivo
-
-    pip freeze > requirements/base.txt
-
 Instalar librerías desde un archivo
 
-    pip install -r requirements/base.txt
+    pip install -r requirements/local.txt
 
 Crear migraciones
 
