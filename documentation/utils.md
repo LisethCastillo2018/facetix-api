@@ -60,7 +60,7 @@ python3 -m venv venv
 
 Instalar librerías desde un archivo
 
-    pip install -r requirements/local.txt
+    pip install -r requirements/base.txt
 
 Crear migraciones
 

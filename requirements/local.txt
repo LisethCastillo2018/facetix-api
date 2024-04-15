@@ -1,5 +1,8 @@
 -r ./base.txt
 
+# postgresql
+psycopg2==2.9.5
+
 pytest==7.4.3
 pytest-django==4.5.2
 pytest-sugar==0.9.7

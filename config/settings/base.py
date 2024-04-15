@@ -14,6 +14,16 @@ import environ
 from datetime import timedelta
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+
+# Obtener la ruta completa de la carpeta .envs/
+envs_folder = '.envs/.local'
+
+# Cargar todas las variables de entorno de los archivos .env en la carpeta .envs/
+for env_file in os.listdir(envs_folder):
+    load_dotenv(os.path.join(envs_folder, env_file), override=True)
+
 env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -204,7 +214,7 @@ SIMPLE_JWT = {
 
 # DATABASES
 DATABASES = {
-    'default': env.db('DATABASE_URL'),
+    'default': env.db('DATABASE_URL', default=''),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = False
 
