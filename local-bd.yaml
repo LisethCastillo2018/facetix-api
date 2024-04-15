@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+
+  # Servicio REST
+  django:
+    build: 
+      context: .
+      dockerfile: compose/local/django/Dockerfile
+    container_name: facetix-django-container
+    command: /start
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - facetix-db
+
+  # Servicio de la base de datos PostgreSQL
+  facetix-db:
+    image: postgres:latest
+    container_name: facetix-db-postgres
+    environment:
+      - POSTGRES_DB=facetix_db
+      - POSTGRES_USER=facetix
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5434:5432"  
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:  # Definición del volumen para PostgreSQL
