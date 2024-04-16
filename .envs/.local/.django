@@ -9,3 +9,7 @@ DJANGO_EMAIL_HOST=smtp.gmail.com
 DJANGO_EMAIL_HOST_USER=tortascrispan@gmail.com
 DJANGO_EMAIL_HOST_PASSWORD=iazx mxmz gzmf wppx
 DJANGO_EMAIL_PORT=587
+
+
+
+AWS_DEFAULT_REGION=us-east-2
