@@ -22,6 +22,10 @@ from facetix_api.events import serializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from facetix_api.events.filter import EventFilter
+from facetix_api.events.models.buy_event_tickets import BuyEventTicket
+from facetix_api.events.serializers.events import EventModelSerializer, ValidateUserEntrySerializer
+from facetix_api.utils.custom_exceptions import CustomAPIException
+from facetix_api.utils.logic.rekognition import RekognitionLogicClass
 
 
 @method_decorator(name='partial_update', decorator=swagger_auto_schema(
@@ -106,3 +110,55 @@ class EventViewSet(mixins.ListModelMixin,
         """Disable event."""
         instance.is_active = False
         instance.save()
+
+    @action(detail=False, methods=['POST'])
+    def validate_user_entry(self, request, *args, **kwargs):
+        
+        serializer = ValidateUserEntrySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = request.data
+        image_source = data['user_photo']
+
+        """ Validar que en la foto haya un rostro """
+        try:
+            rekognition = RekognitionLogicClass()
+            rekognition.detect_faces(image_source)
+        except CustomAPIException as err:
+            return Response(err.default_detail, status=err.status_code)
+
+        """ Buscar todas las compras asociadas a este evento """
+        purchased_tickets = BuyEventTicket.objects.filter(event=data['event']).order_by('-id')
+
+        """ Obtener el usaurio de cada compra y comparar su foto con la recibida en la validación """
+        for buy_ticket in purchased_tickets:
+            if buy_ticket.assistant.photo is None or buy_ticket.assistant.photo == "":
+                continue
+
+            image_target = buy_ticket.assistant.photo
+            event = buy_ticket.event
+            try:
+                rekognition = RekognitionLogicClass()
+                data_response = rekognition.compare_faces(image_source, image_target)
+
+
+                """ Si se hace match, se valida que el evento corresponda al mismo que se recibió """
+                if data_response['ok'] is True:
+                    is_same_event = (event.id == int(data['event']))
+                    data_result = {
+                        'ok': is_same_event,
+                        'data': {
+                            'event': EventModelSerializer(instance=event).data,
+                            'similarity': data_response['data']['similarity'],
+                        },
+                        'message': "Validación exitosa" if is_same_event else "No corresponde al mismo evento"
+                    }
+                    return Response(data_result, status=status.HTTP_200_OK)
+            except CustomAPIException as err:
+                pass
+
+        data = {
+            'ok': False,
+            'data': None,
+            'message': "No se encontró coincidencias"
+        }
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
