@@ -21,7 +21,7 @@ from facetix_api.events import serializers
 #Filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-# from facetix_api.events.filter import BuyEventTicketFilter
+from facetix_api.events.filter import BuyEventTicketFilter
 
 
 @method_decorator(name='partial_update', decorator=swagger_auto_schema(
@@ -40,8 +40,8 @@ class BuyEventTicketViewSet(mixins.ListModelMixin,
 
     queryset = BuyEventTicket.objects.all()
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    # search_fields = ['name', 'description']
-    # filterset_class = BuyEventTicketFilter
+    search_fields = ['event__name', 'eventt__description']
+    filterset_class = BuyEventTicketFilter
 
     def get_serializer_class(self):
         return serializers.BuyEventTicketModelSerializer

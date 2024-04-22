@@ -1,5 +1,7 @@
 """Events serializers."""
 
+from datetime import datetime, time
+
 # Django REST Framework
 from rest_framework import serializers
 
@@ -18,6 +20,27 @@ class EventModelSerializer(serializers.ModelSerializer):
     city = DataSerializer()
     organizer = UserModelSerializer()
     event_type = DataSerializer()
+    info_event = serializers.SerializerMethodField()
+
+    def get_info_event(self, obj):
+        time_value = time(obj.time.hour, obj.time.minute, obj.time.second)
+        time_difference = datetime.combine(obj.date, time_value) - datetime.now()
+
+        days = time_difference.days
+        days = 0 if days < 0 else days
+        hours = time_difference.seconds // 3600
+
+        if hours > 1:
+            return f"El evento está a {days} días y {hours} horas de iniciar"
+        
+        if hours == 1:
+            return f"El evento está a {days} días y {hours} hora de iniciar"
+        
+        if hours < 0 and hours > -5:
+            return "El evento inició"
+
+        return "El evento a pasado"
+
 
     class Meta:
         model = Event
