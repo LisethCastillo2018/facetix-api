@@ -9,6 +9,7 @@ from facetix_api.events.models.events_media import EventMedia
 from facetix_api.events.serializers.events_media import EventMediaModelSerializer
 
 # Serializers
+from facetix_api.users.models.users import User
 from facetix_api.utils.serializers.globals import DataSerializer
 from facetix_api.users.serializers.users import UserModelSerializer
 
@@ -40,3 +41,8 @@ class UpdateAndCreateEventSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+
+class ValidateUserEntrySerializer(serializers.Serializer):
+    event = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all())
+    user_photo = serializers.FileField()

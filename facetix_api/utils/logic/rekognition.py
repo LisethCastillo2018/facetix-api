@@ -1,3 +1,4 @@
+import copy
 import boto3
 from django.conf import settings
 
@@ -25,7 +26,8 @@ class RekognitionLogicClass:
         Returns:
             dict: Un diccionario con los resultados de la comparación.
         """
-
+        image_source = copy.deepcopy(image_source)
+        image_target = copy.deepcopy(image_target)
         image_source = image_source.read()
         image_target = image_target.read()
 
@@ -36,7 +38,7 @@ class RekognitionLogicClass:
                 aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
             )
             response = client.compare_faces(
-                SimilarityThreshold=30,  # nivel de confianza mínimo para las coincidencias que se incluirán en la respuesta
+                SimilarityThreshold=90,  # nivel de confianza mínimo para las coincidencias que se incluirán en la respuesta
                 SourceImage={
                     'Bytes': image_source,
                 },
@@ -85,7 +87,7 @@ class RekognitionLogicClass:
         Returns:
             dict: Un diccionario con los resultados de la detección.
         """
-
+        image_source = copy.deepcopy(image_source)
         image_source = image_source.read()
 
         try:
