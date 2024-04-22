@@ -2,6 +2,8 @@
 # Django
 from django.utils.decorators import method_decorator
 from django.db import transaction
+from django.db.models import Sum
+
 
 # Django REST Framework
 from rest_framework import viewsets, mixins, status
@@ -24,6 +26,7 @@ from rest_framework.filters import SearchFilter
 from facetix_api.events.filter import EventFilter
 from facetix_api.events.models.buy_event_tickets import BuyEventTicket
 from facetix_api.events.serializers.events import EventModelSerializer, ValidateUserEntrySerializer
+from facetix_api.users.models.users import User
 from facetix_api.utils.custom_exceptions import CustomAPIException
 from facetix_api.utils.logic.rekognition import RekognitionLogicClass
 
@@ -162,3 +165,33 @@ class EventViewSet(mixins.ListModelMixin,
             'message': "No se encontró coincidencias"
         }
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['GET'])
+    def assistant_user_events(self, request,  *args, **kwargs):
+        """ Validar usuario """
+        if isinstance(request.user, User):  # cuando el usuario es de sesión (enviado en el HEADER de la petición)
+            user_obj = request.user  
+        else:
+            user_id = request.GET.get('user')  # cuando el usuario es enviado por parametro en la URL
+            user_obj = User.objects.filter(id=user_id).first()
+        
+        if user_obj is None:
+            return Response(data={'detail': ["Usuario no encontrado"]}, status=status.HTTP_400_BAD_REQUEST)
+        
+        """ Consultar los distintos eventos a los cuales un usuario a comprado tickets """
+        events = Event.objects.filter(
+            buyeventticket__assistant=user_obj
+        ).distinct()
+
+        """ Serializar listado de eventos (JSON) """
+        data = self.get_serializer(instance=events, many=True).data
+
+        """ Agregar información sobre total de tickets y total de compra por cada evento """
+        for event_item in data:
+            event_item['tickets'] = BuyEventTicket.objects.filter(assistant=user_obj, event_id=event_item['id']) \
+            .annotate(
+                number_of_tickest=Sum('number'),
+                total=Sum('total_cost')
+            ).values('number_of_tickest', 'total').first()
+
+        return Response(data=data, status=status.HTTP_200_OK)
