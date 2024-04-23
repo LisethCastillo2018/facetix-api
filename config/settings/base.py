@@ -47,12 +47,14 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1', 
     'http://localhost:5173', 
-    '3.138.171.121'  # EC2
+    '3.138.171.121',  # EC2
+    'https://facetix-tickets.netlify.app'
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'https://facetix-tickets.netlify.app'
 ]
 
 
