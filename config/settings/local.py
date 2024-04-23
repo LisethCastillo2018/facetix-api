@@ -3,14 +3,6 @@ from .base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "10.0.2.2",
-    "localhost",
-    "18.224.209.21",
-    "3.138.171.121",
-]
-
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -23,3 +15,7 @@ DEF_DATABASE_URL=f"postgres://{env('POSTGRES_USER')}:{env('POSTGRES_PASSWORD')}@
 DATABASES = {
     'default': env.db('DATABASE_URL', default=DEF_DATABASE_URL),
 }
+
+AWS_ACCESS_KEY_ID = env('DJANGO_AWS_ACCESS_KEY_ID', default="")
+AWS_SECRET_ACCESS_KEY = env('DJANGO_AWS_SECRET_ACCESS_KEY', default="")
+AWS_DEFAULT_REGION = env('AWS_DEFAULT_REGION')

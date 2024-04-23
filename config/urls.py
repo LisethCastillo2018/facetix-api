@@ -45,6 +45,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path('', include(('facetix_api.users.urls', 'users'), namespace='users')),
     path('', include(('facetix_api.events.urls', 'events'), namespace='events')),
+    path('', include(('facetix_api.utils.urls', 'utils'), namespace='utils')),
 ] 
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

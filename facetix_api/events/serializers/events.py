@@ -1,5 +1,7 @@
 """Events serializers."""
 
+from datetime import datetime, time
+
 # Django REST Framework
 from rest_framework import serializers
 
@@ -9,6 +11,7 @@ from facetix_api.events.models.events_media import EventMedia
 from facetix_api.events.serializers.events_media import EventMediaModelSerializer
 
 # Serializers
+from facetix_api.users.models.users import User
 from facetix_api.utils.serializers.globals import DataSerializer
 from facetix_api.users.serializers.users import UserModelSerializer
 
@@ -17,6 +20,27 @@ class EventModelSerializer(serializers.ModelSerializer):
     city = DataSerializer()
     organizer = UserModelSerializer()
     event_type = DataSerializer()
+    info_event = serializers.SerializerMethodField()
+
+    def get_info_event(self, obj):
+        time_value = time(obj.time.hour, obj.time.minute, obj.time.second)
+        time_difference = datetime.combine(obj.date, time_value) - datetime.now()
+
+        days = time_difference.days
+        days = 0 if days < 0 else days
+        hours = time_difference.seconds // 3600
+
+        if hours > 1:
+            return f"El evento está a {days} días y {hours} horas de iniciar"
+        
+        if hours == 1:
+            return f"El evento está a {days} días y {hours} hora de iniciar"
+        
+        if hours < 0 and hours > -5:
+            return "El evento inició"
+
+        return "El evento a pasado"
+
 
     class Meta:
         model = Event
@@ -40,3 +64,8 @@ class UpdateAndCreateEventSerializer(serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+
+class ValidateUserEntrySerializer(serializers.Serializer):
+    event = serializers.PrimaryKeyRelatedField(queryset=Event.objects.all())
+    user_photo = serializers.FileField()

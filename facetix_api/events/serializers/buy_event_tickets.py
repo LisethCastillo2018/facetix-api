@@ -9,11 +9,13 @@ from facetix_api.events.models import BuyEventTicket
 # Serializers
 from facetix_api.utils.serializers.globals import DataChoiceSerializer
 from facetix_api.users.serializers.users import UserModelSerializer
+from facetix_api.events.serializers.events import EventModelSerializer
 
 
 class BuyEventTicketModelSerializer(serializers.ModelSerializer):
     category = DataChoiceSerializer()
     assistant = UserModelSerializer()
+    event = EventModelSerializer()
 
     class Meta:
         model = BuyEventTicket
