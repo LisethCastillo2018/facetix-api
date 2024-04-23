@@ -122,10 +122,11 @@ class EventViewSet(mixins.ListModelMixin,
         data = request.data
         image_source = data['user_photo']
 
+        rekognition = RekognitionLogicClass(image_source=image_source)
+
         """ Validar que en la foto haya un rostro """
         try:
-            rekognition = RekognitionLogicClass()
-            rekognition.detect_faces(image_source)
+            rekognition.detect_faces()
         except CustomAPIException as err:
             return Response(err.default_detail, status=err.status_code)
 
@@ -140,9 +141,8 @@ class EventViewSet(mixins.ListModelMixin,
             image_target = buy_ticket.assistant.photo
             event = buy_ticket.event
             try:
-                rekognition = RekognitionLogicClass()
-                data_response = rekognition.compare_faces(image_source, image_target)
-
+                
+                data_response = rekognition.compare_faces(image_target)
 
                 """ Si se hace match, se valida que el evento corresponda al mismo que se recibió """
                 if data_response['ok'] is True:
