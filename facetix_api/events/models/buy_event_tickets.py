@@ -18,6 +18,7 @@ class BuyEventTicket(DateBaseModel):
     category = models.CharField(
         choices=CategoryChoices.choices,
         max_length=1,
+        default=CategoryChoices.GENERAL
     )
     number = models.IntegerField()
     cost = models.FloatField()

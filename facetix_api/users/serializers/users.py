@@ -24,6 +24,8 @@ from django.utils import timezone
 from facetix_api.users.models.users import BloquedUser
 from facetix_api.utils.custom_regex_validators import CellNumberRegexValidator
 from facetix_api.utils.serializers.globals import DataChoiceSerializer
+from facetix_api.utils.logic.rekognition import RekognitionLogicClass
+from facetix_api.utils.custom_exceptions import CustomAPIException
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -172,7 +174,7 @@ class UpdateAndCreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta class."""
         model = User
-        fields = '__all__'
+        fields = '__all__'       
 
     def validate(self, data):
         password = data.get('password', False)
@@ -195,6 +197,12 @@ class UpdateAndCreateUserSerializer(serializers.ModelSerializer):
 
                 if errors:
                     raise serializers.ValidationError(errors)
+                
+        rekognition = RekognitionLogicClass(image_source=data['photo'])
+        try:
+            rekognition.detect_faces()
+        except CustomAPIException as err:
+            raise serializers.ValidationError({'detail': err.default_detail['message']})
                 
         return super().validate(data)
 
