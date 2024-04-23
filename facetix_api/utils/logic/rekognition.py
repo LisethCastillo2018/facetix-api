@@ -14,8 +14,11 @@ class RekognitionLogicClass:
     """
     Clase que encapsula la lógica para interactuar con Amazon Rekognition.
     """
-    
-    def compare_faces(self, image_source, image_target):
+
+    def __init__(self, image_source) -> None:
+        self.image_source = image_source.read()
+        
+    def compare_faces(self, image_target):
         """
         Compara dos imágenes en busca de similitudes faciales utilizando Amazon Rekognition.
 
@@ -26,24 +29,21 @@ class RekognitionLogicClass:
         Returns:
             dict: Un diccionario con los resultados de la comparación.
         """
-        image_source = copy.deepcopy(image_source)
-        image_target = copy.deepcopy(image_target)
-        image_source = image_source.read()
-        image_target = image_target.read()
 
         try:
             client = boto3.client(
                 'rekognition',
                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_DEFAULT_REGION
             )
             response = client.compare_faces(
                 SimilarityThreshold=90,  # nivel de confianza mínimo para las coincidencias que se incluirán en la respuesta
                 SourceImage={
-                    'Bytes': image_source,
+                    'Bytes': self.image_source,
                 },
                 TargetImage={
-                    'Bytes': image_target,
+                    'Bytes': image_target.read(),
                 },
             )
 
@@ -77,7 +77,7 @@ class RekognitionLogicClass:
                 "data": str(err)
             })
 
-    def detect_faces(self, image_source):
+    def detect_faces(self):
         """
         Detecta rostros en una imagen utilizando Amazon Rekognition.
 
@@ -87,8 +87,6 @@ class RekognitionLogicClass:
         Returns:
             dict: Un diccionario con los resultados de la detección.
         """
-        image_source = copy.deepcopy(image_source)
-        image_source = image_source.read()
 
         try:
        
@@ -100,7 +98,7 @@ class RekognitionLogicClass:
 
             response = client.detect_faces(
                 Image={
-                    'Bytes': image_source,
+                    'Bytes': self.image_source,
                 },
                 Attributes=['DEFAULT']
             )

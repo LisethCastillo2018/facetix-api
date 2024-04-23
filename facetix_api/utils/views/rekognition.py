@@ -18,8 +18,8 @@ class RekognitionViewSet(viewsets.GenericViewSet):
         image_source = self.__get_image_request(request.data, 'image_source')
         image_target = self.__get_image_request(request.data, 'image_target')
         try:
-            rekognition = RekognitionLogicClass()
-            data = rekognition.compare_faces(image_source, image_target)
+            rekognition = RekognitionLogicClass(image_source=image_source)
+            data = rekognition.compare_faces(image_target)
             return Response(data, status=status.HTTP_200_OK)
         except CustomAPIException as err:
             return Response(err.default_detail, status=err.status_code)
@@ -28,8 +28,8 @@ class RekognitionViewSet(viewsets.GenericViewSet):
     def detect_faces(self,  request, *args, **kwargs):
         image_source = self.__get_image_request(request.data, 'image_source')
         try:
-            rekognition = RekognitionLogicClass()
-            data = rekognition.detect_faces(image_source)
+            rekognition = RekognitionLogicClass(image_source=image_source)
+            data = rekognition.detect_faces()
             return Response(data, status=status.HTTP_200_OK)
         except CustomAPIException as err:
             return Response(err.default_detail, status=err.status_code)
