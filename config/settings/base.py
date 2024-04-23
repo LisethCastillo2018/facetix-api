@@ -44,7 +44,11 @@ DEBUG = True
 
 # settings.py
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'http://localhost:5173']
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'http://localhost:5173', 
+    '3.138.171.121'  # EC2
+]
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
